@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block login_content %}
+<div class="row justify-content-center align-items-center" style="min-height: 100vh;">
+    <div class="col-md-4">
+        <div class="card" style="border: 1px solid rgba(255,122,162,0.2);">
+            <div class="card-body p-5">
+                <div class="text-center mb-4">
+                    <div style="width: 80px; height: 80px; margin: 0 auto 20px; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, rgba(107,140,255,0.2), rgba(255,122,162,0.15)); border: 1px solid rgba(255,122,162,0.3); border-radius: 16px;">
+                        <i class="bi bi-building" style="font-size: 2.5rem; background: linear-gradient(90deg, #ff7aa2, #6b8cff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;"></i>
+                    </div>
+                    <h3 style="color: var(--text); margin: 0 0 10px;">Business System</h3>
+                    <p style="color: var(--muted); margin: 0;">Sign in to continue</p>
+                </div>
+                <form method="POST">
+                    <div class="mb-3">
+                        <label class="form-label" style="color: var(--text); font-weight: 600;">Username</label>
+                        <input type="text" class="form-control" name="username" required style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); color: var(--text); border-radius: 10px;">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" style="color: var(--text); font-weight: 600;">Password</label>
+                        <input type="password" class="form-control" name="password" required style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); color: var(--text); border-radius: 10px;">
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100 btn-custom" style="font-weight: 600;">Login</button>
+                </form>
+                <div class="mt-3 text-center">
+                    <small style="color: var(--muted);">Default: admin / admin123</small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

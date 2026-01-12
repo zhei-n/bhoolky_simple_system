@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container-fluid">
+    <h2 class="mb-4" style="color: var(--text); font-weight: 700;"><i class="bi bi-pencil"></i> Edit Ticket #{{ ticket[0] }}</h2>
+
+    <div class="card">
+        <div class="card-body">
+            <form method="POST">
+                <div class="mb-3">
+                    <label class="form-label" style="color: var(--text); font-weight: 600;">Title *</label>
+                    <input type="text" class="form-control" name="title" value="{{ ticket[1] }}" required style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); color: var(--text); border-radius: 10px;">
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label" style="color: var(--text); font-weight: 600;">Description / Notes</label>
+                    <textarea class="form-control" name="description" rows="4" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); color: var(--text); border-radius: 10px;">{{ ticket[2] }}</textarea>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label" style="color: var(--text); font-weight: 600;">Status *</label>
+                    <select class="form-select" name="status" required style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); color: var(--text); border-radius: 10px;">
+                        <option value="Active" {% if ticket[3] == 'Active' %}selected{% endif %}>Active</option>
+                        <option value="Done" {% if ticket[3] == 'Done' %}selected{% endif %}>Done</option>
+                        <option value="Onsite" {% if ticket[3] == 'Onsite' %}selected{% endif %}>Onsite</option>
+                        <option value="Escalate" {% if ticket[3] == 'Escalate' %}selected{% endif %}>Escalate</option>
+                    </select>
+                </div>
+
+                {% if attachments %}
+                <div class="mb-3">
+                    <label class="form-label" style="color: var(--text); font-weight: 600;">Attachments</label>
+                    <div class="list-group" style="background: transparent;">
+                        {% for att in attachments %}
+                        <a href="{{ url_for('uploaded_file', filename=att[3].split('/')[-1]) }}" 
+                           class="list-group-item list-group-item-action" target="_blank" style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); color: var(--text);">
+                            <i class="bi bi-file-earmark"></i> {{ att[2] }}
+                        </a>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-primary btn-custom">
+                        <i class="bi bi-save"></i> Update Ticket
+                    </button>
+                    <a href="{{ url_for('tickets') }}" class="btn btn-secondary">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

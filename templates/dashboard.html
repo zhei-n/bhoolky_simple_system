@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container-fluid">
+    <h2 class="mb-4" style="color: var(--text); font-weight: 700;"><i class="bi bi-speedometer2"></i> Dashboard</h2>
+    
+    <div class="row">
+        <div class="col-md-4">
+            <div class="stat-card">
+                <h3>{{ active_tickets }}</h3>
+                <p class="mb-0" style="color: var(--muted);"><i class="bi bi-ticket-perforated"></i> Active Tickets</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="stat-card">
+                <h3>{{ active_items }}</h3>
+                <p class="mb-0" style="color: var(--muted);"><i class="bi bi-box-seam"></i> Active Inventory</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="stat-card">
+                <h3>{{ pending_tasks }}</h3>
+                <p class="mb-0" style="color: var(--muted);"><i class="bi bi-list-check"></i> Pending Tasks</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-body">
+                    <h5 style="color: var(--text); font-weight: 700;"><i class="bi bi-lightning-fill" style="color: var(--accent-1);"></i> Quick Actions</h5>
+                    <div class="d-flex gap-3 mt-3 flex-wrap">
+                        <a href="{{ url_for('add_ticket') }}" class="btn btn-primary btn-custom">
+                            <i class="bi bi-plus-circle"></i> New Ticket
+                        </a>
+                        <a href="{{ url_for('add_inventory') }}" class="btn btn-custom" style="background: linear-gradient(90deg, rgba(0,255,220,0.8), rgba(160,255,120,0.8)); border: none; color: #000; font-weight: 600;">
+                            <i class="bi bi-plus-circle"></i> Add Inventory
+                        </a>
+                        <a href="{{ url_for('tasks') }}" class="btn btn-custom" style="background: linear-gradient(90deg, rgba(107,140,255,0.9), rgba(107,200,255,0.8)); border: none; color: white; font-weight: 600;">
+                            <i class="bi bi-plus-circle"></i> Create Task
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
