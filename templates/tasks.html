@@ -8,6 +8,7 @@
     <div class="card mb-4">
         <div class="card-body">
             <form method="POST" action="{{ url_for('add_task') }}" class="row g-3">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                 <div class="col-md-4">
                     <input type="text" class="form-control" name="title" placeholder="Task title" required>
                 </div>

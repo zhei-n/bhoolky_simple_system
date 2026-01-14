@@ -1,16 +1,37 @@
 from flask import Flask, render_template, request, redirect, url_for, session, flash, send_from_directory
+from flask_wtf.csrf import CSRFProtect
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
 import sqlite3
 import os
 from datetime import datetime
 from functools import wraps
+import secrets
+import re
 
 app = Flask(__name__)
-app.secret_key = 'your-secret-key-change-this'  # Change this in production
+# Use environment variable for secret key, generate random one if not set
+app.secret_key = os.environ.get('SECRET_KEY') or secrets.token_hex(32)
+
+# Enable CSRF protection
+csrf = CSRFProtect(app)
+
+# Setup rate limiting
+limiter = Limiter(
+    app=app,
+    key_func=get_remote_address,
+    default_limits=["200 per day", "50 per hour"]
+)
+
 app.config['UPLOAD_FOLDER'] = 'uploads'
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB max file size
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'pdf', 'doc', 'docx'}
+
+# Password requirements
+MIN_PASSWORD_LENGTH = 8
+PASSWORD_PATTERN = re.compile(r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$')
 
 # Create uploads folder if it doesn't exist
 os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
@@ -77,9 +98,16 @@ def init_db():
     # Create default admin user if not exists
     c.execute("SELECT * FROM users WHERE username = 'admin'")
     if not c.fetchone():
-        hashed_password = generate_password_hash('admin123')
+        # Generate a strong random password for admin
+        admin_password = secrets.token_urlsafe(16)
+        hashed_password = generate_password_hash(admin_password)
         c.execute("INSERT INTO users (username, password, email) VALUES (?, ?, ?)",
                   ('admin', hashed_password, 'admin@example.com'))
+        print(f"\n{'='*60}")
+        print("IMPORTANT: Save this admin password in a secure location!")
+        print(f"Admin Username: admin")
+        print(f"Admin Password: {admin_password}")
+        print(f"{'='*60}\n")
     
     conn.commit()
     conn.close()
@@ -87,6 +115,15 @@ def init_db():
 # Helper function to check allowed file extensions
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+# Password validation helper
+def validate_password(password):
+    """Validate password meets security requirements"""
+    if len(password) < MIN_PASSWORD_LENGTH:
+        return False, f"Password must be at least {MIN_PASSWORD_LENGTH} characters long"
+    if not PASSWORD_PATTERN.match(password):
+        return False, "Password must contain uppercase, lowercase, number, and special character (@$!%*?&)"
+    return True, "Password is valid"
 
 # Login required decorator
 def login_required(f):
@@ -106,10 +143,16 @@ def index():
     return redirect(url_for('login'))
 
 @app.route('/login', methods=['GET', 'POST'])
+@limiter.limit("5 per minute")  # Max 5 login attempts per minute
 def login():
     if request.method == 'POST':
-        username = request.form['username']
-        password = request.form['password']
+        username = request.form.get('username', '').strip()
+        password = request.form.get('password', '')
+        
+        # Basic input validation
+        if not username or not password:
+            flash('Username and password are required.', 'danger')
+            return render_template('login.html')
         
         conn = sqlite3.connect('business_system.db')
         c = conn.cursor()
@@ -117,13 +160,15 @@ def login():
         user = c.fetchone()
         conn.close()
         
+        # Generic error message to prevent username enumeration
         if user and check_password_hash(user[2], password):
             session['user_id'] = user[0]
             session['username'] = user[1]
             flash('Login successful!', 'success')
             return redirect(url_for('dashboard'))
         else:
-            flash('Invalid username or password', 'danger')
+            # Don't reveal if username exists or password is wrong
+            flash('Invalid credentials. Please try again.', 'danger')
     
     return render_template('login.html')
 
@@ -414,6 +459,7 @@ def delete_task(id):
 # task routing for moving tasks between columns
 @app.route('/tasks/move/<int:id>', methods=['POST'])
 @login_required
+@csrf.exempt  # AJAX request, CSRF token in headers handled by fetch
 def move_task(id):
     try:
         data = request.get_json()
