@@ -248,9 +248,44 @@
             color: var(--text);
         }
 
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            color: var(--muted);
+        }
+
+        table thead {
+            background: rgba(107,140,255,0.15);
+        }
+
+        table thead th {
+            color: var(--text);
+            font-weight: 600;
+            border-bottom: 2px solid rgba(255,122,162,0.3);
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            letter-spacing: 0.5px;
+            padding: 12px;
+            text-align: left;
+        }
+
+        table tbody tr {
+            background-color: rgba(255,255,255,0.02) !important;
+            border-bottom: 1px solid rgba(255,255,255,0.05) !important;
+        }
+
+        table tbody tr:hover {
+            background-color: rgba(255,122,162,0.1) !important;
+        }
+
+        table tbody td {
+            color: var(--muted);
+            padding: 12px;
+        }
 
         .table {
             color: var(--muted);
+            background: rgba(255,255,255,0.02) !important;
         }
 
         .table thead {
@@ -259,10 +294,16 @@
             font-weight: 600;
         }
 
-        .table-hover tbody tr:hover {
-            background-color: rgba(255,122,162,0.1);
+        .table tbody tr {
+            background-color: rgba(255,255,255,0.02) !important;
+            border-bottom: 1px solid rgba(255,255,255,0.05) !important;
+            color: var(--muted) !important;
         }
 
+        .table-hover tbody tr:hover {
+            background-color: rgba(255,122,162,0.1) !important;
+        }
+        
         .status-badge {
             padding: 6px 14px;
             border-radius: 20px;

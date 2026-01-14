@@ -369,21 +369,36 @@ def add_task():
     flash('Task added successfully!', 'success')
     return redirect(url_for('tasks'))
 
-@app.route('/tasks/edit/<int:id>', methods=['POST'])
+@app.route('/tasks/edit/<int:id>', methods=['GET', 'POST'])
 @login_required
 def edit_task(id):
-    title = request.form['title']
-    description = request.form.get('description', '')
-    column_name = request.form.get('column_name')
+    if request.method == 'GET':
+        conn = sqlite3.connect('business_system.db')
+        c = conn.cursor()
+        c.execute('''SELECT * FROM tasks WHERE id = ?''', (id,))
+        task = c.fetchone()
+        conn.close()
+        
+        if not task:
+            flash('Task not found.', 'danger')
+            return redirect(url_for('tasks'))
+        
+        columns = ['To Do', 'In Progress', 'Review', 'Done']
+        return render_template('edit_task.html', task=task, columns=columns)
     
-    conn = sqlite3.connect('business_system.db')
-    c = conn.cursor()
-    c.execute("UPDATE tasks SET title = ?, description = ?, column_name = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?",
-              (title, description, column_name, id))
-    conn.commit()
-    conn.close()
-    flash('Task updated successfully!', 'success')
-    return redirect(url_for('tasks'))
+    elif request.method == 'POST':
+        title = request.form['title']
+        description = request.form.get('description', '')
+        column_name = request.form.get('column_name')
+        
+        conn = sqlite3.connect('business_system.db')
+        c = conn.cursor()
+        c.execute("UPDATE tasks SET title = ?, description = ?, column_name = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?",
+                  (title, description, column_name, id))
+        conn.commit()
+        conn.close()
+        flash('Task updated successfully!', 'success')
+        return redirect(url_for('tasks'))
 
 @app.route('/tasks/delete/<int:id>')
 @login_required
